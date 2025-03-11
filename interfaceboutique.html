@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique d'Alimentation</title>
+    <style>
+        :root {
+            --orange: #FFA500;
+            --couleur-cafe: #6f4f37;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            background-color: var(--orange);
+            padding: 20px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            color: rgb(255, 2, 2);
+        }
+
+        .admin-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        .container {
+            padding: 20px;
+            background-color: var(--couleur-cafe);
+            margin: 20px;
+            border-radius: 8px;
+            color: white;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--orange);
+            color: white;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #ff8c00;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--couleur-cafe);
+            color: white;
+        }
+
+        td {
+            background-color: #3e2b1f;
+            color: white;
+        }
+
+        .total {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .header-info {
+            margin-top: 30px;
+            font-size: 1.1em;
+            text-align: right;
+        }
+
+        .client-info {
+            margin-bottom: 10px;
+        }
+
+        #factureSection {
+            display: block;
+        }
+
+        #inventaireSection {
+            display: none;
+        }
+
+        #passwordSection {
+            display: none;
+        }
+
+        #changePasswordSection {
+            display: none;
+        }
+
+        .admin-container {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Maison LOGOS</h1>
+        <div>
+            <button onclick="afficherInterfaceInventaire()">Accéder à l'inventaire (Admin)</button>
+        </div>
+    </header>
+
+    <!-- Interface de Facturation (accueil) -->
+    <div id="factureSection" class="container">
+        <h2>Facturation</h2>
+        <div class="header-info">
+            <H3>Maison Logos</H3>
+            <p><strong></strong> <span id="jour"></span></p>
+        </div>
+
+        <input type="text" id="clientNom" placeholder="Nom du client" />
+        <div id="clientNomError" class="error"></div>
+
+        <div id="articleSection">
+            <input type="text" id="articleNom" placeholder="Nom de l'article" />
+            <input type="number" id="quantiteArticle" placeholder="Quantité" />
+            <button onclick="ajouterArticleAVendre()">Ajouter à la facture</button>
+        </div>
+
+        <table id="factureTable">
+            <thead>
+                <tr>
+                    <th>Nom de l'article</th>
+                    <th>Quantité</th>
+                    <th>Montant à payer (fc)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="total">
+            <p><strong>Total à payer :</strong> <span id="totalPayer">0.00</span> fc</p>
+
+        </div>
+
+        <button onclick="finaliserFacture()">Confirmer la facture</button>
+
+    </div>
+    <div id="inventaireSection" class="container">
+        <h2>Inventaire - Gestion des articles</h2>
+        <div class="admin-container">
+            <div>
+                <h3>Ajouter un article</h3>
+                <input type="text" id="articleAjoutNom" placeholder="Nom de l'article" />
+                <input type="number" id="articleAjoutQuantite" placeholder="Quantité" />
+                <input type="number" id="articleAjoutPrixAchat" placeholder="Prix d'achat (fc)" />
+                <input type="number" id="articleAjoutPrixVente" placeholder="Prix de vente (fc)" />
+                <button onclick="ajouterArticleInventaire()">Ajouter à l'inventaire</button>
+            </div>
+
+            <div>
+                <h3>Articles en inventaire</h3>
+                <div id="stockTableContainer">
+                    <table id="stockTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Quantité</th>
+                                <th>Prix d'achat (fc)</th>
+                                <th>Prix de vente (fc)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button id="stockButtons">Stocks</button>
+                <button id="retour">Retour</button>
+            </div>
+        </div>
+
+
+
+        <!-- Interface d'Administration (Inventaire) -->
+        <div id="SectionTransaction" class="container">
+
+
+            <h3>Transactions des clients</h3>
+            <table id="adminTable">
+                <thead>
+                    <tr>
+                        <th>Nom du client</th>
+                        <th>Articles achetés</th>
+                        <th>Total payé (fc)</th>
+                        <th>Total transaction (fc)</th>
+
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <h3>Bénéfices réalisés sur les ventes</h3>
+            <table id="beneficeTable">
+                <thead>
+                    <tr>
+                        <th>Nom de l'article</th>
+                        <th>Quantité achetée</th>
+                        <th>Bénéfice par article (fc)</th>
+                        <th>Bénéfice total (fc)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <button onclick="retournerInterfaceFacturation()">Retourner à la facturation</button>
+        </div>
+    </div>
+    <!-- Interface mot de passe -->
+    <div id="passwordSection" class="container">
+        <h2>Mot de passe requis pour l'inventaire</h2>
+        <input type="password" id="passwordInput" placeholder="Entrez le mot de passe" />
+        <button onclick="verifierMotDePasse()">Accéder à l'inventaire</button>
+    </div>
+
+    <script>
+        let articlesInventaire = [];
+        let venteArticles = [];
+        let motDePasseAdmin = "12345678"; // Mot de passe par défaut de l'administrateur
+        let beneficesArticles = [];
+        let transactionsClients = []; // Initialisation du tableau des transactions clients
+        let factureIdCounter = 1; // Compteur pour générer des ID de facture temporaires
+
+
+        // Affichage de la date et heure
+        function afficherJour() {
+            const date = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = date.toLocaleString('fr-FR', options);
+            document.getElementById('jour').textContent = dateString;
+        }
+
+        // Ajouter un article à la facture
+        function ajouterArticleAVendre() {
+            const articleNom = document.getElementById('articleNom').value;
+            const quantiteArticle = parseInt(document.getElementById('quantiteArticle').value);
+
+            if (!articleNom || quantiteArticle <= 0) {
+                alert("Veuillez remplir correctement les champs.");
+                return;
+            }
+
+            const article = articlesInventaire.find(a => a.nom === articleNom);
+
+            if (!article) {
+                alert("Article non disponible dans le stock.");
+                return;
+            }
+
+            // Vérification de la quantité disponible en stock
+            if (quantiteArticle > article.quantite) {
+                alert("Quantité insuffisante en stock." + "  " + "aumoins : " + article.quantite);
+                return;
+            }
+
+            // Ajouter l'article à la facture
+            venteArticles.push({ nom: articleNom, quantite: quantiteArticle, prixVente: article.prixVente });
+
+            // Réduire la quantité en stock
+            article.quantite -= quantiteArticle;
+
+            // Réinitialiser les champs du formulaire
+            document.getElementById('articleNom').value = '';
+            document.getElementById('quantiteArticle').value = '';
+
+            // Mettre à jour l'affichage de la facture et du stock
+            updateFacture();
+            updateStock();
+        }
+
+        // Mettre à jour la facture
+        function updateFacture() {
+            const tableBody = document.getElementById('factureTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            let totalPayer = 0;
+            let totalTransaction = 0;
+
+            venteArticles.forEach((vente, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${vente.nom}</td>
+                    <td>${vente.quantite}</td>
+                    <td>${(vente.prixVente * vente.quantite).toFixed(2)} fc</td>
+                    <td><button onclick="retirerArticle(${index})">Retirer</button></td>
+                `;
+                tableBody.appendChild(row);
+
+                totalPayer += vente.prixVente * vente.quantite;
+
+            });
+
+            document.getElementById('totalPayer').textContent = totalPayer.toFixed(2);
+
+        }
+
+        // Retirer un article de la facture
+        function retirerArticle(index) {
+            venteArticles.splice(index, 1);
+            updateFacture();
+        }
+
+        function finaliserFacture() {
+            const clientNom = document.getElementById('clientNom').value;
+            if (!clientNom) {
+                alert("Veuillez entrer le nom du client.");
+                return;
+            }
+
+            // Calculer le total de la facture
+            const totalPayer = venteArticles.reduce((total, vente) => total + vente.prixVente * vente.quantite, 0);
+
+            // Créer une transaction à ajouter dans le tableau des transactions clients
+            const transaction = {
+                clientNom: clientNom,
+                articles: venteArticles.map(vente => `${vente.nom} (x${vente.quantite})`),
+                totalPayer: totalPayer.toFixed(2),
+                totalTransaction: totalPayer.toFixed(2)  // Total de la transaction (peut inclure des informations supplémentaires si nécessaire)
+            };
+
+            // Ajouter la transaction au tableau des transactions clients
+            transactionsClients.push(transaction);
+
+            // Mettre à jour l'affichage du tableau des transactions clients dans l'interface administrateur
+            function updateTransactionsClients() {
+                const tableBody = document.getElementById('adminTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Effacer les lignes existantes dans la table
+
+                transactionsClients.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>${transaction.clientNom}</td>
+            <td>${transaction.articles.join(', ')}</td>
+            <td>${transaction.totalPayer} fc</td>
+            <td>${transaction.totalTransaction} fc</td>
+        `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+
+            // Calculer les bénéfices
+            calculerBenefices();
+
+            // Réinitialiser la facture après la confirmation
+            venteArticles = [];
+            updateFacture();
+            document.getElementById('clientNom').value = '';
+        }
+
+        // Calculer les bénéfices pour chaque article vendu
+        function calculerBenefices() {
+            beneficesArticles = [];
+
+            venteArticles.forEach(vente => {
+                const article = articlesInventaire.find(a => a.nom === vente.nom);
+                if (article) {
+                    const beneficeUnitaire = article.prixVente - article.prixAchat;
+                    const beneficeTotal = beneficeUnitaire * vente.quantite;
+
+                    beneficesArticles.push({
+                        nom: vente.nom,
+                        quantite: vente.quantite,
+                        beneficeUnitaire: beneficeUnitaire.toFixed(2),
+                        beneficeTotal: beneficeTotal.toFixed(2)
+                    });
+                }
+            });
+
+            updateBenefices();
+        }
+
+        // Mettre à jour le tableau des bénéfices
+        function updateBenefices() {
+            const tableBody = document.getElementById('beneficeTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            let totalBenefice = 0;
+
+            beneficesArticles.forEach(benefice => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${benefice.nom}</td>
+                    <td>${benefice.quantite}</td>
+                    <td>${benefice.beneficeUnitaire} fc</td>
+                    <td>${benefice.beneficeTotal} fc</td>
+                `;
+                tableBody.appendChild(row);
+
+                totalBenefice += parseFloat(benefice.beneficeTotal);
+            });
+
+            // Ajouter le total des bénéfices en bas du tableau
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan="3"><strong>Total des bénéfices</strong></td>
+                <td><strong>${totalBenefice.toFixed(2)} fc</strong></td>
+            `;
+            tableBody.appendChild(row);
+        }
+
+        // Ajouter un article à l'inventaire
+        function ajouterArticleInventaire() {
+            const nom = document.getElementById('articleAjoutNom').value;
+            const quantite = parseInt(document.getElementById('articleAjoutQuantite').value);
+            const prixAchat = parseFloat(document.getElementById('articleAjoutPrixAchat').value);
+            const prixVente = parseFloat(document.getElementById('articleAjoutPrixVente').value);
+
+            if (!nom || quantite <= 0 || prixAchat <= 0 || prixVente <= 0) {
+                alert("Veuillez entrer tous les champs correctement.");
+                return;
+            }
+
+            const article = { nom, quantite, prixAchat, prixVente };
+            articlesInventaire.push(article);
+
+            document.getElementById('articleAjoutNom').value = '';
+            document.getElementById('articleAjoutQuantite').value = '';
+            document.getElementById('articleAjoutPrixAchat').value = '';
+            document.getElementById('articleAjoutPrixVente').value = '';
+
+            updateStock();
+        }
+
+        //cacher le tableau stock articles
+        const botunArticle = document.getElementById('stockButton');
+        const RetourTransaction = document.getElementById('retour');
+        const stockTableContainer = document.getElementById('stockTableContainer');
+        const SectionTransaction = document.getElementById('SectionTransaction');
+
+        botunArticle.addEventListener('click', afficherStock); 
+        RetourTransaction.addEventListener('click', retour);
+
+        function afficherStock(e) {
+           
+            stockTableContainer.style.display = "block";
+            SectionTransaction.style.display = "none";
+        }
+
+        function retour(e) {
+            stockTableContainer.style.display = "none";
+            SectionTransaction.style.display = "block";
+        }
+        //Mettre à jour la table de stock
+        function updateStock() {
+            const tableBody = document.getElementById('stockTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            articlesInventaire.forEach(article => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${article.nom}</td>
+                    <td>${article.quantite}</td>
+                    <td>${article.prixAchat.toFixed(2)} fc</td>
+                    <td>${article.prixVente.toFixed(2)} fc</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Afficher l'interface de l'inventaire
+        function afficherInterfaceInventaire() {
+            document.getElementById('factureSection').style.display = 'none';
+            document.getElementById('passwordSection').style.display = 'block';
+        }
+
+        // Vérification du mot de passe
+        function verifierMotDePasse() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === motDePasseAdmin) {
+                document.getElementById('passwordSection').style.display = 'none';
+                document.getElementById('inventaireSection').style.display = 'block';
+            } else {
+                alert("Mot de passe incorrect.");
+            }
+        }
+
+
+        // Retourner à la facturation
+        function retournerInterfaceFacturation() {
+            document.getElementById('inventaireSection').style.display = 'none';
+            document.getElementById('factureSection').style.display = 'block';
+        }
+
+        // Initialiser la date à afficher
+        afficherJour();
+
+
+
+        // ... (votre code existant) ...
+
+
+        function finaliserFacture() {
+            const clientNom = document.getElementById('clientNom').value;
+            if (!clientNom) {
+                alert("Veuillez entrer le nom du client.");
+                return;
+            }
+
+            const totalPayer = venteArticles.reduce((total, vente) => total + vente.prixVente * vente.quantite, 0);
+            const dateTransaction = new Date(); // Récupérer la date et l'heure actuelles
+            const factureId = factureIdCounter++; // Générer un ID de facture temporaire
+
+            const transaction = {
+                factureId: factureId, // Ajouter l'ID de facture
+                clientNom: clientNom,
+                articles: venteArticles.map(vente => `${vente.nom} (x${vente.quantite})`),
+                totalPayer: totalPayer.toFixed(2),
+                totalTransaction: totalPayer.toFixed(2),
+                dateTransaction: dateTransaction.toLocaleString() // Ajouter la date et l'heure
+            };
+
+            transactionsClients.push(transaction);
+            updateTransactionsClients(); // Mettre à jour l'affichage des transactions
+
+            calculerBenefices();
+            venteArticles = [];
+            updateFacture();
+            document.getElementById('clientNom').value = '';
+        }
+
+        function updateTransactionsClients() {
+            const tableBody = document.getElementById('adminTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            transactionsClients.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${transaction.clientNom}</td>
+                <td>${transaction.articles.join(', ')}</td>
+                <td>${transaction.totalPayer} fc</td>
+                <td>${transaction.totalTransaction} fc</td>
+                <td>${transaction.dateTransaction}</td>
+                <td>${transaction.factureId}</td>
+            `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ... (le reste de votre code) ...
+    </script>
+</body>
+
+</html>
